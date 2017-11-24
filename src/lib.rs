@@ -1,22 +1,23 @@
 #![feature(lang_items)]
+#![feature(const_fn)]
+#![feature(unique)]
+#![feature(const_unique_new)]
+#![allow(dead_code)]
 #![no_std]
 
 extern crate rlibc;
+extern crate volatile;
+extern crate spin;
+
+#[macro_use]
+mod vga;
+
 
 #[no_mangle]
 pub extern fn rust_main() {
-
-
-    let hello = b"Hello world!";
-    let color_byte = 0x1f; 
-
-    let mut hello_colored = [color_byte; 24];
-    for (i, char_byte) in hello.into_iter().enumerate(){
-        hello_colored[i*2] = *char_byte;
-    }
-
-    let buffet_ptr = (0xb8000 + 1988) as *mut _;
-    unsafe { *buffet_ptr = hello_colored };
+    vga::clear();
+    println!("a{}", {println!("xD"); 2});
+    println!("sdfa{}sdf", "asd");
 
     loop{}
 }
