@@ -101,6 +101,7 @@ enable_paging:
 
 start:
     mov esp, stack_top
+    mov edi, ebx ; pass multiboot info ptr to rust_main
 
     call check_multiboot
     call check_cpuid
@@ -109,13 +110,14 @@ start:
     call set_up_page_tables
     call enable_paging
 
-    call enable_paging
 
     lgdt [gdt64.pointer]
 
-    jmp gdt64.code:long_mode_start
 
-    mov dword [0xb8000], 0x2f4b2f4f
+
+    jmp gdt64.code:long_mode_start ; go to long mode
+
+    mov dword [0xb8000], 0x2f4b2f4f ; print ok after system finished
     hlt
 
 ; Prints `ERR` and error
@@ -149,5 +151,5 @@ p2_table:
 
 
 stack_bottom:
-    resb 128
+    resb 4 * 4096
 stack_top:
