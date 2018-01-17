@@ -1,6 +1,8 @@
 pub use self::area_frame_allocator::AreaFrameAllocator;
+use self::paging::PAddr;
 
 mod area_frame_allocator;
+mod paging;
 
 
 pub const PAGE_SIZE: usize = 4096;
@@ -17,7 +19,12 @@ pub trait FrameAllocator {
 
 
 impl Frame {
+
     fn containing_address(address: usize) -> Frame {
-        Frame{ number: address / PAGE_SIZE }
+        Frame { number: address / PAGE_SIZE }
+    }
+
+    fn start_address(&self) -> PAddr {
+        self.number * PAGE_SIZE
     }
 }

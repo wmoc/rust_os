@@ -15,6 +15,10 @@ mod vga;
 mod memory;
 
 
+#[macro_use]
+extern crate bitflags;
+
+
 #[no_mangle]
 pub extern fn rust_main(multiboot_info_addr: usize) {
     use memory::FrameAllocator;
