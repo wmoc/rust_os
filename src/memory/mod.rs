@@ -28,3 +28,7 @@ impl Frame {
         self.number * PAGE_SIZE
     }
 }
+
+
+pub use self::paging::test_paging;
+

@@ -6,6 +6,7 @@ pub const P4: *mut Table<Level4> = 0xFFFF_FFFF_FFFF_F000 as *mut _;
 
 
 
+
 use core::marker::PhantomData;
 
 pub struct Table<L: TableLevel> {
@@ -36,6 +37,7 @@ impl<L> Table<L> where L: TableLevel {
     }
 }
 
+use memory::FrameAllocator;
 impl <L> Table<L> where L: HierarchicalLevel{
     pub fn next_table_address(&self, index: usize) -> Option<usize> {
         let entry_flags = self[index].flags();
@@ -56,18 +58,21 @@ impl <L> Table<L> where L: HierarchicalLevel{
         self.next_table_address(index)
             .map(|address| unsafe { &mut *(address as *mut _) })
     }
+
+    pub fn next_table_create<A: FrameAllocator>(&mut self, index: usize, allocator: &mut A) 
+        -> &mut Table<L::NextLevel>
+    {
+        if self.next_table(index).is_none() {
+            assert!(!self.entries[index].flags().contains(HUGE_PAGE), "mapping does not support huge pages");
+
+            let frame = allocator.allocate_frame().expect("no frames available");
+            self.entries[index].set(frame, PRESENT | WRITABLE);
+            self.next_table_mut(index).unwrap().zero();
+        }
+        self.next_table_mut(index).unwrap()
+    }
 }
 
-
-
-
-fn test() {
-    let p4 = unsafe { &*P4 };
-    p4.next_table(42)
-        .and_then(|p3| p3.next_table(1337))
-        .and_then(|p2| p2.next_table(0xdeadbeaf))
-        .and_then(|p1| p1.next_table(0xcafebabe));
-}
 
 
 

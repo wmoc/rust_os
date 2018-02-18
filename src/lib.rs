@@ -1,4 +1,5 @@
 #![feature(lang_items)]
+#![feature(const_generics)]
 #![feature(const_fn)]
 #![feature(unique)]
 #![feature(const_unique_new)]
@@ -9,6 +10,7 @@ extern crate rlibc;
 extern crate volatile;
 extern crate spin;
 extern crate multiboot2;
+extern crate x86_64;
 
 #[macro_use]
 mod vga;
@@ -54,8 +56,8 @@ pub extern fn rust_main(multiboot_info_addr: usize) {
         kernel_start as usize, kernel_end as usize, multiboot_start,
         multiboot_end, memory_map_tag.memory_areas());
     
-    println!("{:?}", frame_allocator.allocate_frame());
 
+    memory::test_paging(&mut frame_allocator);
 
     loop{}
 }

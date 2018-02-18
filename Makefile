@@ -11,14 +11,14 @@ assembly_object_files := $(patsubst src/arch/$(arch)/%.nasm, \
 	build/arch/$(arch)/%.o, $(assembly_source_files))
 
 .PHONY: all clean run iso kernel
-
+RUST_TARGET_PATH = ./
 all: $(kernel)
 
 clean: 
 	@rm -r build
 
 run: $(iso)
-	@qemu-system-x86_64 -cdrom $(iso) -m 2G
+	@qemu-system-x86_64 -cdrom $(iso) -m 0.5G
 
 iso: $(iso)
 
@@ -33,7 +33,8 @@ $(kernel): kernel $(rust_os) $(assembly_object_files) $(linker_script)
 	@ld -n --gc-sections -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
 
 kernel:
-	@xargo build --target $(target)
+	 
+	@RUST_TARGET_PATH=$(dir $(abspath $(lastword $(MAKEFILE_LIST)))) xargo build --target $(target)
 
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.nasm
 	@mkdir -p $(shell dirname $@)
